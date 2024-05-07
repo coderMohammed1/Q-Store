@@ -59,6 +59,7 @@ class Upload{
         }
     }
 public class Uploads extends javax.swing.JFrame {
+    public static Uploads obg2;
 
     /**
      * Creates new form Uploads
@@ -349,7 +350,12 @@ public class Uploads extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
+        SignIn.cust = null;
+        SignIn.sell = null;
+        obg2.setVisible(false);
+        
+        SignIn.obj.setVisible(false);
+        SignIn.caller();
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
@@ -367,11 +373,7 @@ public class Uploads extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static  void caller4(){
-         java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new Uploads().setVisible(true);
-            }
-        });
+         Uploads.main(null);
     }
     
     public static void main(String args[]) {
@@ -402,7 +404,8 @@ public class Uploads extends javax.swing.JFrame {
        if(SignIn.sell != null){ 
             java.awt.EventQueue.invokeLater(new Runnable() {
                 public void run() {
-                    new Uploads().setVisible(true);
+                    obg2 = new Uploads();
+                    obg2.setVisible(true);
                 }
             });
         }else{

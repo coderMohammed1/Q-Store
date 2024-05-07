@@ -160,7 +160,7 @@ class Lquery{
 public class SignIn extends javax.swing.JFrame {
     public static Customer cust;
     public static Seller sell;
-    
+    public static SignIn  obj;
     /**
      * Creates new form SignIn
      */
@@ -359,7 +359,8 @@ public class SignIn extends javax.swing.JFrame {
     public static void caller(){
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new SignIn().setVisible(true);
+                 obj = new SignIn();
+                 obj.setVisible(true);
             }
         });
     }
@@ -390,7 +391,8 @@ public class SignIn extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new SignIn().setVisible(true);
+               obj = new SignIn();
+               obj.setVisible(true);
             }
         });
     }

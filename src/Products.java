@@ -108,6 +108,7 @@ public class Products extends javax.swing.JFrame {
     /**
      * Creates new form Products
      */
+    public static Products obg;
    JPanel mainPanel; // FlowLayout
     JPanel productsPanel; // GridLayout
 
@@ -333,9 +334,16 @@ public class Products extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
+        SignIn.cust = null;
+        SignIn.sell = null;
+        
+        SignIn.obj.setVisible(false);
+        obg.setVisible(false);
+        SignIn.caller();
+        //this is to siignout
     }//GEN-LAST:event_jButton2ActionPerformed
 
+    
     /**
      * @param args the command line arguments
      */
@@ -386,7 +394,8 @@ public class Products extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Products().setVisible(true);
+               obg = new Products();
+               obg.setVisible(true);
             }
         });
         
