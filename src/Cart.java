@@ -202,7 +202,10 @@ public class Cart extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
+    
+    public static void cartCaller(){
+        Cart.main(null);
+    }
     /**
      * @param args the command line arguments
      */

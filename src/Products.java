@@ -16,6 +16,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 import java.lang.*;
+import java.security.PublicKey;
 
 import java.sql.*;
 
@@ -54,7 +55,12 @@ class Pquery{
     static Connection connect;
 
     PreparedStatement query;
-
+    PreparedStatement iscart;
+    
+    PreparedStatement inscart;
+    PreparedStatement insp;
+    PreparedStatement tot;
+    
     Pquery(){
          try{
         connect = DriverManager.getConnection(URL,USERNAME,PASSWORD);
@@ -71,7 +77,7 @@ class Pquery{
         ResultSet res2 = null;
         try{
             if(ind == 1){
-            // to search
+            // to search pls use this query by calling the method res with the parameters ind = 1 and setter = JtextFild1.getText();
             query = connect.prepareStatement("SELECT PRODUCT.ID ,PRODUCT.P_NAME,PRODUCT.PRICE,PRODUCT.MANUFACTURER,USERS.FIRST_NAME "
                     + "FROM PRODUCT JOIN USERS ON PRODUCT.SELLER = USERS.ID WHERE P_NAME LIKE %?% OR MANUFACTURER LIKE %?% OR SELLER LIKE %?%"
                     + " ORDER BY PRODUCT.ID DESC FETCH FIRST 30 ROWS ONLY" );
@@ -92,9 +98,72 @@ class Pquery{
         return res2;
     }
     
+    // take the id of the cart if it exisits
+    ResultSet res3 = null;
+    ResultSet cart(int id){
+        try{
+         iscart = connect.prepareStatement("SELECT ID FROM CART WHERE USER_ID = ? FETCH FIRST ROW ONLY");
+         iscart.setInt(1,id);
+         res3 = iscart.executeQuery();
+        }catch(Exception sqerr){
+            sqerr.printStackTrace();
+            close();
+            System.exit(5);
+        }
+        
+        return  res3;
+    }
+    
+    // adding new cart
+    int newc = 0;
+    int newcart(double total, int uid){
+        try{
+            inscart = connect.prepareStatement("INSERT INTO CART(TOTAL,USER_ID) VALUES(?,?)");
+            inscart.setDouble(1, total);
+            
+            inscart.setInt(2, uid);
+            newc = inscart.executeUpdate();
+        }catch(Exception inse){
+            inse.printStackTrace();
+        }
+        return newc;
+    }
+    
+    // insert new product and link it with a cart
+    int newp(int cartid,int proid){
+        int newresp = 0;
+        try{
+            insp = connect.prepareStatement("INSERT INTO CART_PRODUCTS(CART,PRODUCT) VALUES(?,?)");
+            insp.setInt(1, cartid);
+            insp.setInt(2, proid);
+            
+            newresp = insp.executeUpdate();
+        }catch(Exception ep){
+            ep.printStackTrace();
+        }
+        
+        return newresp;
+    }
+    
+    // updates the total
+    int total(int cartid, double price){
+        int mytot = 0;
+        try{
+            tot = connect.prepareStatement("UPDATE CART SET TOTAL = TOTAL + ? WHERE ID = ?");
+            tot.setDouble(1, price);
+            
+            tot.setInt(2, cartid);
+            mytot = tot.executeUpdate();
+        }catch(Exception cat){
+            cat.printStackTrace();
+        }
+        
+        return mytot;
+    }
+    
     static void close(){
             try{
-                  connect.close();
+                 connect.close();
             }catch(Exception err)   {
                 System.out.println("connection dose not want to close");
             }
@@ -108,6 +177,79 @@ public class Products extends javax.swing.JFrame {
     /**
      * Creates new form Products
      */
+    public static int id3 = -1;
+    public double price2 = 0.0;
+    public  static int cart_id = -2;
+    
+    private class Handler implements ActionListener{
+        // add product btn
+        @Override
+        public void actionPerformed(ActionEvent cbtn) {
+            
+            JButton clicked = (JButton)cbtn.getSource();
+            id3 = (int)clicked.getClientProperty("id");
+            price2 = (double)clicked.getClientProperty("price");
+            
+            
+            Pquery cartq = new Pquery();
+            ResultSet thecart = cartq.cart(Integer.valueOf(SignIn.cust.id));
+            
+            int cres = 0;
+            try{
+                while (thecart.next()) {                
+                    cart_id = thecart.getInt("ID");
+                    cres ++;
+                }
+            }catch(Exception carte){
+                carte.printStackTrace();
+            }
+            
+            if(cres == 0){ // in case if we do not have a cart already
+                Pquery insq =  new Pquery();
+                int pres = insq.newcart(price2, Integer.valueOf(SignIn.cust.id));
+                
+                if(pres>0){
+                    Pquery cartq2 = new Pquery();
+                    ResultSet thecart2 = cartq2.cart(Integer.valueOf(SignIn.cust.id));
+                    
+                    try{
+                        while (thecart2.next()) {                
+                            cart_id = thecart2.getInt("ID");
+                        }
+                    }catch(Exception carte2){
+                        carte2.printStackTrace();
+                    }
+                    
+                    int res5 = 0;
+                    res5 = insq.newp(cart_id,id3);
+                    
+                    if(res5<0){
+                        System.err.println("EROR#6");
+                    }else{
+                        JOptionPane.showMessageDialog(null, "your product has been added!","DONE!",JOptionPane.INFORMATION_MESSAGE);
+                    }
+                }
+            }else{
+                // in case if we have a cart and we want to add a new product to it
+                Pquery addpro = new Pquery();
+                
+                int res6 = 0;
+                res6 = addpro.newp(cart_id,id3);
+                
+                if(res6>0){
+                    res6 = addpro.total(cart_id,price2);
+                }
+                
+                if(res6 <= 0){
+                    System.err.println("ERORR#7");
+                }else{
+                    JOptionPane.showMessageDialog(null, "your product has been added!","DONE!",JOptionPane.INFORMATION_MESSAGE);
+                }
+            }
+        }
+        
+    }
+    
     public static Products obg;
    JPanel mainPanel; // FlowLayout
     JPanel productsPanel; // GridLayout
@@ -171,13 +313,13 @@ public class Products extends javax.swing.JFrame {
 
     private void addProductsToPanel() {
         for (Product mypro : plist) {
-            JPanel productPanel = createProductPanel(mypro.pname, mypro.price, mypro.seller);
+            JPanel productPanel = createProductPanel(mypro.pname, mypro.price, mypro.seller,mypro.id);
             productsPanel.add(productPanel);
         }
         Pquery.close();
     }
 
-    private JPanel createProductPanel(String productName, double price, String seller) {
+    private JPanel createProductPanel(String productName, double price, String seller,int id) {
         JPanel productPanel = new JPanel(new GridLayout(4, 1)); // 4 rows for product name, price, seller, and button
         productPanel.setBackground(Color.WHITE); // Set background color
         productPanel.setBorder(BorderFactory.createLineBorder(Color.RED, 2)); // Add red border
@@ -200,7 +342,12 @@ public class Products extends javax.swing.JFrame {
 
         JButton cartButton = new JButton("Add to Cart");
         cartButton.setAlignmentX(JButton.CENTER_ALIGNMENT); // Center-align the button
-
+        cartButton.putClientProperty("id", id); // so we can know which button was clicked!
+        
+        cartButton.putClientProperty("price", price);
+        Handler handler = new Handler();
+        cartButton.addActionListener(handler);
+        
         productPanel.add(nameLabel);
         productPanel.add(priceLabel);
         productPanel.add(sellerLabel);
@@ -330,7 +477,7 @@ public class Products extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
+        Cart.cartCaller();
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
