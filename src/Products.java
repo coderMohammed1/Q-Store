@@ -63,9 +63,9 @@ class Pquery{
     
     Pquery(){
          try{
-        connect = DriverManager.getConnection(URL,USERNAME,PASSWORD);
-        query = connect.prepareStatement("SELECT PRODUCT.ID ,PRODUCT.P_NAME,PRODUCT.PRICE,PRODUCT.MANUFACTURER,USERS.FIRST_NAME"
-                + " FROM PRODUCT JOIN USERS ON PRODUCT.SELLER = USERS.ID ORDER BY PRODUCT.ID DESC FETCH FIRST 30 ROWS ONLY" ); // Deafult query
+            connect = DriverManager.getConnection(URL,USERNAME,PASSWORD);
+            query = connect.prepareStatement("SELECT PRODUCT.ID ,PRODUCT.P_NAME,PRODUCT.PRICE,PRODUCT.MANUFACTURER,USERS.FIRST_NAME"
+                    + " FROM PRODUCT JOIN USERS ON PRODUCT.SELLER = USERS.ID ORDER BY PRODUCT.ID DESC FETCH FIRST 30 ROWS ONLY" ); // Deafult query
         }catch(Exception e){
             e.printStackTrace();
             System.exit(1);
@@ -246,6 +246,7 @@ public class Products extends javax.swing.JFrame {
                     JOptionPane.showMessageDialog(null, "your product has been added!","DONE!",JOptionPane.INFORMATION_MESSAGE);
                 }
             }
+            Pquery.close();
         }
         
     }
