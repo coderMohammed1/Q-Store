@@ -78,13 +78,13 @@ class Pquery{
         try{
             if(ind == 1){
             // to search pls use this query by calling the method res with the parameters ind = 1 and setter = JtextFild1.getText();
-            query = connect.prepareStatement("SELECT PRODUCT.ID ,PRODUCT.P_NAME,PRODUCT.PRICE,PRODUCT.MANUFACTURER,USERS.FIRST_NAME "
-                    + "FROM PRODUCT JOIN USERS ON PRODUCT.SELLER = USERS.ID WHERE P_NAME LIKE %?% OR MANUFACTURER LIKE %?% OR SELLER LIKE %?%"
-                    + " ORDER BY PRODUCT.ID DESC FETCH FIRST 30 ROWS ONLY" );
-            
-                    query.setString(1,setter );
-                    query.setString(2,setter );
-                    query.setString(3,setter );
+            query = connect.prepareStatement("SELECT PRODUCT.ID, PRODUCT.P_NAME, PRODUCT.PRICE, PRODUCT.MANUFACTURER, USERS.FIRST_NAME "
+        + "FROM PRODUCT JOIN USERS ON PRODUCT.SELLER = USERS.ID "
+        + "WHERE PRODUCT.P_NAME LIKE ? " // Filter by P_NAME
+        + "ORDER BY PRODUCT.ID DESC FETCH FIRST 30 ROWS ONLY"
+            );
+            query.setString(1, setter + '%');
+
             }
       
              res2 = query.executeQuery();
@@ -428,6 +428,11 @@ public class Products extends javax.swing.JFrame {
         );
 
         jButton4.setText("Search");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -491,7 +496,32 @@ public class Products extends javax.swing.JFrame {
         //this is to siignout
     }//GEN-LAST:event_jButton2ActionPerformed
 
-    
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+       try{  
+        if(jTextField1.getText().length() != 0){
+            plist.clear();
+        Pquery serachQuery  = new Pquery();
+        setop = serachQuery.res(1 , jTextField1.getText());
+        
+    while(setop.next()){
+                    Product sprod = new Product(setop.getInt("ID"), setop.getString("P_NAME"), setop.getDouble("PRICE"),
+                        setop.getString("MANUFACTURER"),setop.getString("FIRST_NAME"));
+                
+                plist.add(sprod); 
+                
+        }
+        productsPanel.removeAll();
+        productsPanel.setVisible(false);
+        addProductsToPanel();
+        productsPanel.setVisible(true);
+       }else{
+         JOptionPane.showMessageDialog(productsPanel, "you cant search with empty string!","bruh what could you find",JOptionPane.ERROR_MESSAGE);
+        }
+    } catch(Exception prop){
+        prop.printStackTrace();
+    }
+    }//GEN-LAST:event_jButton4ActionPerformed
+ 
     /**
      * @param args the command line arguments
      */
