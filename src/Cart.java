@@ -15,6 +15,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Locale;
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.event.*;
@@ -46,6 +47,10 @@ class queries{
     PreparedStatement query;
     PreparedStatement del;
     PreparedStatement upd;
+    PreparedStatement insh;
+    
+    PreparedStatement check;
+    PreparedStatement lastq;
     
     public queries() {
          try{
@@ -91,6 +96,37 @@ class queries{
             close();
         }
         return result;
+    }
+    
+    int checkout(int id){
+        int results = 0;
+        ResultSet res = null;
+        try{
+            
+            int caid = -1;
+            insh = connect.prepareStatement("SELECT ID FROM CART WHERE USER_ID = ? FETCH FIRST ROW ONLY"); // no need to the price );
+            insh.setInt(1, id);
+            res = insh.executeQuery();
+            
+            while(res.next()){
+                caid = res.getInt("ID");
+            }
+            
+            check = connect.prepareStatement("DELETE FROM CART_PRODUCTS WHERE CART = ?");
+            check.setInt(1, caid);
+            results = check.executeUpdate();
+            
+            lastq = connect.prepareStatement("UPDATE CART SET TOTAL = 0.00 WHERE ID = ?");
+            
+            lastq.setInt(1, caid);
+            results = lastq.executeUpdate();
+            
+        }catch(Exception ert){
+            ert.printStackTrace();
+            close();
+        }
+        
+        return results;
     }
     
     static void close(){
@@ -185,7 +221,10 @@ public class Cart extends javax.swing.JFrame {
             productsPanel.add(productPanel);
             i++;
         }
-        jLabel1.setText("total: " + total +"$");
+        if(i != 0)
+            jLabel1.setText("total: " + total +"$");
+        else
+             jLabel1.setText("total: " + "0.00" +"$");
         queries.close();
     }
 
@@ -237,6 +276,11 @@ public class Cart extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jButton1.setText("Check out");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         jLabel1.setText("Total: 500 $");
 
@@ -338,6 +382,30 @@ public class Cart extends javax.swing.JFrame {
         
         Products.main(null);
     }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // checkout
+        queries q;
+        int done = 0;
+                
+        if(SignIn.cust != null){
+            q = new queries();
+            done = q.checkout(Integer.valueOf(SignIn.cust.id));
+        }else{
+            q = new queries();
+            done = q.checkout(Integer.valueOf(SignIn.sell.id));
+        }
+        
+        if(done > 0){
+            plist2.clear();
+           
+            myobj.setVisible(false);
+            myobj.main(null);
+        }
+        
+        queries.close();
+           
+    }//GEN-LAST:event_jButton1ActionPerformed
     
     public static void cartCaller(){
         Cart.main(null);
