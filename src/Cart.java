@@ -331,6 +331,11 @@ public class Cart extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        Products.plist.clear();
+        
+        if(Products.obg != null)
+         Products.obg.setVisible(false);
+        
         Products.main(null);
     }//GEN-LAST:event_jButton2ActionPerformed
     
@@ -366,7 +371,11 @@ public class Cart extends javax.swing.JFrame {
 
         try{
             queries cartqc = new queries();
-            mancart = cartqc.showCart(Integer.valueOf(SignIn.cust.id));
+            
+            if(SignIn.cust != null)
+                mancart = cartqc.showCart(Integer.valueOf(SignIn.cust.id));
+            else
+                mancart = cartqc.showCart(Integer.valueOf(SignIn.sell.id));
             
             while(mancart.next()){
                 Cartp addit = new Cartp(mancart.getString("P_NAME"), mancart.getDouble("price"), mancart.getInt("PID"));

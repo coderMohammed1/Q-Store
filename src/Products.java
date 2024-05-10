@@ -192,7 +192,12 @@ public class Products extends javax.swing.JFrame {
             
             
             Pquery cartq = new Pquery();
-            ResultSet thecart = cartq.cart(Integer.valueOf(SignIn.cust.id));
+             ResultSet thecart = null;
+             
+            if(SignIn.cust != null)
+              thecart = cartq.cart(Integer.valueOf(SignIn.cust.id));
+            else
+                 thecart = cartq.cart(Integer.valueOf(SignIn.sell.id));
             
             int cres = 0;
             try{
@@ -206,11 +211,20 @@ public class Products extends javax.swing.JFrame {
             
             if(cres == 0){ // in case if we do not have a cart already
                 Pquery insq =  new Pquery();
-                int pres = insq.newcart(price2, Integer.valueOf(SignIn.cust.id));
+                 int pres = 0;
+                if(SignIn.cust != null)
+                  pres = insq.newcart(price2, Integer.valueOf(SignIn.cust.id));
+                else
+                    pres = insq.newcart(price2, Integer.valueOf(SignIn.sell.id));
                 
                 if(pres>0){
                     Pquery cartq2 = new Pquery();
-                    ResultSet thecart2 = cartq2.cart(Integer.valueOf(SignIn.cust.id));
+                    ResultSet thecart2; 
+                    
+                    if(SignIn.cust != null)
+                       thecart2 = cartq2.cart(Integer.valueOf(SignIn.cust.id));
+                    else
+                        thecart2 = cartq2.cart(Integer.valueOf(SignIn.sell.id));
                     
                     try{
                         while (thecart2.next()) {                
@@ -497,6 +511,9 @@ public class Products extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        Cart.plist2.clear();
+        if(Cart.myobj != null)
+            Cart.myobj.setVisible(false);
         Cart.cartCaller();
     }//GEN-LAST:event_jButton1ActionPerformed
 
@@ -506,6 +523,13 @@ public class Products extends javax.swing.JFrame {
         
         SignIn.obj.setVisible(false);
         obg.setVisible(false);
+        
+        if(Uploads.obg2 != null)
+            Uploads.obg2.setVisible(false);
+        
+         if(Cart.myobj != null)
+            Cart.myobj.setVisible(false);
+        
         SignIn.caller();
         //this is to siignout
     }//GEN-LAST:event_jButton2ActionPerformed

@@ -122,6 +122,11 @@ public class Uploads extends javax.swing.JFrame {
         });
 
         jButton3.setText("Products");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -346,13 +351,19 @@ public class Uploads extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
+         Cart.plist2.clear();
+        if(Cart.myobj != null)
+            Cart.myobj.setVisible(false);
+        Cart.cartCaller();
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         SignIn.cust = null;
         SignIn.sell = null;
         obg2.setVisible(false);
+        
+         if(Cart.myobj != null)
+            Cart.myobj.setVisible(false);
         
         SignIn.obj.setVisible(false);
         SignIn.caller();
@@ -368,6 +379,13 @@ public class Uploads extends javax.swing.JFrame {
              JOptionPane.showMessageDialog(null, "revisit your entries!","ERROR!",JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        Products.plist.clear();
+        if(Products.obg != null)
+         Products.obg.setVisible(false);
+        Products.main(null);
+    }//GEN-LAST:event_jButton3ActionPerformed
 
     /**
      * @param args the command line arguments
