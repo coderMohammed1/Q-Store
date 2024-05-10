@@ -1,4 +1,5 @@
 this is just to learn java); 
+
 #📝 Notes :
 
 to run this on netbeans you will need to download jdk 20.00
