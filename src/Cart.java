@@ -44,7 +44,9 @@ class queries{
     static Connection connect;
 
     PreparedStatement query;
-
+    PreparedStatement del;
+    PreparedStatement upd;
+    
     public queries() {
          try{
             connect = DriverManager.getConnection(URL,USERNAME,PASSWORD);
@@ -72,6 +74,25 @@ class queries{
         return res10;
     }
     
+    int delete(int id,double price,int cart){
+        int result = 0;
+        try{
+            del = connect.prepareStatement("DELETE FROM CART_PRODUCTS WHERE ID = ?");
+            del.setInt(1, id);
+            result = del.executeUpdate();
+            
+            upd = connect.prepareStatement("UPDATE CART SET TOTAL = TOTAL-? WHERE ID = ?");
+            upd.setDouble(1, price);
+            upd.setInt(2, cart);
+            result = upd.executeUpdate();
+            
+        }catch(Exception sqlx){
+            sqlx.printStackTrace();
+            close();
+        }
+        return result;
+    }
+    
     static void close(){
             try{
                  connect.close();
@@ -89,7 +110,31 @@ public class Cart extends javax.swing.JFrame {
      * Creates new form Cart
      */
     
-    
+    public static Cart myobj;
+            
+    private class Del implements ActionListener{
+        int id4 = 0;
+        double price3 = 0.0;
+        int cart_id = 0;
+        
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            
+            JButton clicked = (JButton)e.getSource();
+            id4 = (int)clicked.getClientProperty("id2");
+            price3 = (double)clicked.getClientProperty("price2");
+            cart_id = (int)clicked.getClientProperty("cartID"); 
+            
+            
+            queries delp = new queries();
+            delp.delete(id4, price3, cart_id);
+            
+            myobj.setVisible(false);
+            plist2.clear();
+            cartCaller();
+        }
+        
+    }
     static double total;
     static int cid;
     
@@ -136,7 +181,7 @@ public class Cart extends javax.swing.JFrame {
     private void addProductsToPanel() {
         int i = 0;
         for (Cartp prod : plist2) {
-            JPanel productPanel = createProductPanel(prod.pname,prod.price,prod.pid);
+            JPanel productPanel = createProductPanel(prod.pname,prod.price,prod.pid,cid);
             productsPanel.add(productPanel);
             i++;
         }
@@ -144,7 +189,7 @@ public class Cart extends javax.swing.JFrame {
         queries.close();
     }
 
-    private JPanel createProductPanel(String productName,double price,int prid) {
+    private JPanel createProductPanel(String productName,double price,int prid,int cart3) {
         JPanel productPanel = new JPanel(new GridLayout(3, 1)); // 3 rows for product name and cart button and price
         productPanel.setBackground(Color.WHITE); // Set background color
         productPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY)); // Add border for separation
@@ -157,7 +202,13 @@ public class Cart extends javax.swing.JFrame {
         JButton cartButton = new JButton("Delete from cart");
         
         cartButton.setAlignmentX(JButton.CENTER_ALIGNMENT); // Center-align the button
-
+        cartButton.putClientProperty("id2", prid);
+        cartButton.putClientProperty("price2", price);
+        
+        cartButton.putClientProperty("cartID", cart3);
+        Del handler = new Del();
+        cartButton.addActionListener(handler);
+        
         productPanel.add(nameLabel);
         productPanel.add(priceL);
         productPanel.add(cartButton);
@@ -330,7 +381,8 @@ public class Cart extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Cart().setVisible(true);
+                myobj = new Cart();
+                myobj.setVisible(true);
             }
         });
     }
